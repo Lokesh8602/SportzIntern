@@ -19,7 +19,8 @@ import com.example.sportzinter.viewmodel.MatchDataViewModel
 class MainActivity : AppCompatActivity(), Click {
     lateinit var viewModel: MatchDataViewModel
     private val retrofitService = RetroServices.getInstance()
-     lateinit var binding: ActivityMainBinding
+    lateinit var binding: ActivityMainBinding
+    private var matchDataList: ArrayList<MatchData> = ArrayList()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -27,37 +28,48 @@ class MainActivity : AppCompatActivity(), Click {
         setContentView(binding.root)
 
 
-        viewModel = ViewModelProvider(this,Matchfactory(MatchRepository(retrofitService))).get(MatchDataViewModel::class.java)
+        viewModel = ViewModelProvider(this, Matchfactory(MatchRepository(retrofitService))).get(
+            MatchDataViewModel::class.java
+        )
 
         viewModel.matchData.observe(this, Observer {
-            SetData(arrayListOf(it) )
+            SetData(arrayListOf(it))
 
         }
         )
-        viewModel.indData.observe(this,Observer{
-            Log.d("India",it.toString())
-          SetData(arrayListOf(it))
+        viewModel.indData.observe(this, Observer {
+            Log.d("India", it.toString())
+            SetData(arrayListOf(it))
         })
         viewModel.getMatch()
         viewModel.getIND()
 
     }
 
-    private fun SetData(data :List<MatchData> ) {
-        val adapter = MatchDataAdapter(this,data,this )
+    private fun SetData(data: List<MatchData>) {
+        matchDataList.addAll(data)
+        val adapter = MatchDataAdapter(this, matchDataList, this)
         binding.ListRecyclerView.layoutManager = LinearLayoutManager(this)
         binding.ListRecyclerView.adapter = adapter
 
     }
 
     override fun onclick(data: MatchData) {
-        val intent = Intent(this,DetailsActivity::class.java)
-        val bundle =Bundle()
-        bundle.putSerializable("name", data.Teams)
-        intent.putExtras(bundle)
+        val intent = Intent(this, DetailsActivity::class.java)
+        if (data.Teams?.nz != null &&
+            data.Teams?.nz?.NameFull.toString().isNotEmpty()
+        ) {
+            val bundle = Bundle()
+            bundle.putSerializable("name", data.Teams)
+            intent.putExtra("match2", "indvsnz")
+            intent.putExtras(bundle)
+        } else {
+            val bundle = Bundle()
+            bundle.putSerializable("name", data.Teams)
+            intent.putExtra("match1", "savspak")
+            intent.putExtras(bundle)
+        }
         startActivity(intent)
 
     }
-
-
 }

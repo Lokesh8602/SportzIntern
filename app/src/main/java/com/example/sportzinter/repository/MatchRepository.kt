@@ -7,8 +7,7 @@ class MatchRepository(private val retrofitService: RetroServices) {
    suspend fun getData() = retrofitService.
    getMatchData()
 
-   suspend fun getInd() = retrofitService.
-   getIndNew()
+   suspend fun getInd() = retrofitService.getIndNew()
 
 
 
